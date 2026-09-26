@@ -1,0 +1,97 @@
+E-Jamaat  (Electron+React)
+
+Step 1:  npm init -y 
+
+Step 2:  npm install electron electron-builder -g
+
+Step 3:  npm install concurrently electron-is-dev
+
+Step 4: Add some line of code to script inside package.json 
+       "dev": "concurrently \"electron . \" \"cd src && npm start \" ",
+       "build": " cd src && npm run build && cd .. && electron-builder"
+
+Step 5:Create index.js and add main code to render the window 
+
+Step 6:Create react app inside root folder 
+       npx create-react-app src
+
+Step 7 : Add   "homepage": "./",  inside package.json of react app
+
+Step 8: For tailwind and daisyui   INSIDE REACT-APP
+        npm install -D tailwindcss postcss autoprefixer
+        npx tailwindcss init
+        npm install daisyui
+
+        INSIDE tailwind.config.js 
+        content: [
+            "./src/**/*.{js,jsx,ts,tsx}",
+         ],
+         plugins: [
+            require('daisyui'),
+         ],
+        
+        inside index.css for React app
+        @tailwind base;
+        @tailwind components;
+        @tailwind utilities;
+
+Step 9: For fontFamily 
+        npm install @fontsource/poppins
+
+        INSIDE index.js for REACT APP
+        import "@fontsource/poppins"; 
+        //for Fonts
+        import '@fontsource/poppins/100.css';  // Extra Light weight
+        import '@fontsource/poppins/200.css';  // Light weight
+        import '@fontsource/poppins/300.css';  // Regular Light weight
+        import '@fontsource/poppins/400.css';  // Regular weight
+        import '@fontsource/poppins/500.css';  // Medium weight
+        import '@fontsource/poppins/600.css';  // Semi-Bold weight
+        import '@fontsource/poppins/700.css';  // Bold weight
+        import '@fontsource/poppins/800.css';  // Extra Bold weight
+        import '@fontsource/poppins/900.css';  // Black weight
+
+        Inside tailwind.config.js 
+        extend: {
+        fontFamily: {
+          sans: ["Poppins", "sans-serif"], // Set Poppins as the primary font
+        },
+        },
+
+
+Step 10: For Route for REACT
+        npm install react-router-dom
+
+Step 11: for electron reloaded 
+        npm install electron-reloader --save-dev
+
+Step 12: To RUN both REACT and Electron Correctly use
+          npm install wait-on --save-dev
+
+Step 13: For Iconify in REACT   
+          npm install --save-dev @iconify/react
+
+        
+Step 14:For Chart
+        npm install react-apexcharts apexcharts
+
+
+Build Process:
+Step 1 : For Mac sudo npm install -D electron --unsafe-perm==true --alow-root
+Step 2 :add following code inside package.json of root path 
+        "build": {
+           "mac": {
+           "identity": null
+            }
+        },
+
+
+
+
+
+
+
+
+
+# npx electron-builder --win nsis --publish never
+FOR WINDOW
