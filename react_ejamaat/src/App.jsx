@@ -19,7 +19,7 @@ import ControlFamily from "./Screen/Family/ControlFamily";
 import Population from "./Screen/Population/Population";
 import Dashboard from "./Screen/Dashboard/Dashboard";
 import UpdateRequestsReview from "./Screen/UpdateRequests/UpdateRequestsReview";
-import Announcement from "./Screen/Announcement/Announcement";
+import AnnouncementComingSoon from "./Screen/Announcement/AnnouncementComingSoon";
 import MarriageAidReview from "./Screen/MarriageAid/MarriageAidReview";
 import { AppUpdatesProvider } from "./components/AppUpdates";
 
@@ -89,7 +89,7 @@ function AppContent() {
         <Route path="/singlefamily/:family_id" element={<SingleFamily />} />
         <Route path="/population" element={<Population />} />
         <Route path="/update-requests" element={<UpdateRequestsReview />} />
-        <Route path="/announcements" element={<Announcement />} />
+        <Route path="/announcements" element={<AnnouncementComingSoon />} />
         <Route path="/marriage-aid-requests" element={<MarriageAidReview />} />
         
         {/* 404 Route */}

@@ -709,7 +709,7 @@ export default function Dashboard() {
         <div className="max-w-9xl mx-auto">
           <div className="flex items-center justify-between gap-4">
             <div className="flex-1">
-              <h1 className="text-4xl font-bold tracking-tight">Dashboard 222</h1>
+              <h1 className="text-4xl font-bold tracking-tight">Dashboard</h1>
               {isLoading ? (
                 <Skeleton className="h-4 w-96 mt-2" />
               ) : (
