@@ -1,6 +1,6 @@
 {
   "name": "e-jamaat",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "electron.js",
   "scripts": {
     "predev": "npx kill-port 5173 5174 || true",
@@ -30,11 +30,15 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         },
         {
           "target": "portable",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "artifactName": "E-Jamaat-Setup-${version}.${ext}",
