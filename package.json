@@ -5,7 +5,12 @@
   "scripts": {
     "predev": "npx kill-port 5173 5174 || true",
     "dev": "cross-env NODE_ENV=development concurrently \"cd react_ejamaat && npm run dev\" \"wait-on http://localhost:5173 && electron .\"",
-    "build": "cd react_ejamaat && npm run build && cd .. && npx electron-builder --win --x64"
+    "build": "cd react_ejamaat && npm run build && cd .. && npx electron-builder --win --x64",
+    "publish": "cd react_ejamaat && npm run build && cd .. && npx electron-builder --win --x64 --publish always"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jazeel5/Ullal_Jamaat_Electron.git"
   },
   "build": {
     "appId": "com.dataqueuesystems.ejamaat",
@@ -58,8 +63,8 @@
     "publish": [
       {
         "provider": "github",
-        "owner": "DataQueueSystems",
-        "repo": "Ejamaat-Software",
+        "owner": "jazeel5",
+        "repo": "Ullal_Jamaat_Electron",
         "releaseType": "release"
       }
     ]

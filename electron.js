@@ -16,6 +16,8 @@ const log = require("electron-log");
 
 log.transports.file.level = "info";
 autoUpdater.logger = log;
+autoUpdater.autoDownload = false; // Ask user before downloading
+autoUpdater.autoInstallOnAppQuit = true;
 
 let progressWindow = null;
 let win = null;
@@ -69,74 +71,6 @@ if (isDev) {
   }
 }
 
-// function createWindow() {
-//   const { width, height } = screen.getPrimaryDisplay().workAreaSize;
-
-//   const win = new BrowserWindow({
-//     width: width,
-//     height: height,
-//     title: "E-Jamaat", // 👈 Set your title here
-//     icon: path.join(__dirname, "assets", "icon.png"), // <-- Set your icon file path here
-//     webPreferences: {
-//       preload: path.join(__dirname, "preload.js"),
-//       nodeIntegration: false,
-//       contextIsolation: true,
-//       webSecurity: false,
-//       enableRemoteModule: false,
-//       sandbox: true,
-//     },
-//   });
-
-//   if (isDev) {
-//     win.loadURL("http://localhost:3000");
-//   } else {
-//     win.loadFile(path.join(__dirname, "src/build/index.html"));
-//     // Disable Ctrl+R reload
-//     win.webContents.on("before-input-event", (event, input) => {
-//       if (input.key.toLowerCase() === "r" && (input.control || input.meta)) {
-//         event.preventDefault();
-//       }
-//     });
-//   }
-// }
-
-// // app.whenReady().then(createWindow);
-// app.whenReady().then(() => {
-//   createWindow();
-
-//   app.on("activate", () => {
-//     if (BrowserWindow.getAllWindows().length === 0) {
-//       createWindow();
-//     }
-//   });
-// });
-
-// // 🔹 Event listeners for update progress
-// autoUpdater.on("update-available", (info) => {
-//   dialog.showMessageBox({
-//     type: "info",
-//     title: "Update Available",
-//     message: `A new version (${info.version}) is available. Downloading now...`,
-//   });
-// });
-
-// autoUpdater.on("update-downloaded", (info) => {
-//   dialog
-//     .showMessageBox({
-//       type: "question",
-//       buttons: ["Restart", "Later"],
-//       defaultId: 0,
-//       message: "Update downloaded. Restart now to install?",
-//     })
-//     .then((returnValue) => {
-//       if (returnValue.response === 0) autoUpdater.quitAndInstall();
-//     });
-// });
-
-// autoUpdater.on("error", (err) => {
-//   log.error("Auto updater error:", err);
-// });
-
 function createWindow() {
   const { width, height } = screen.getPrimaryDisplay().workAreaSize;
 
@@ -168,75 +102,165 @@ function createWindow() {
     });
   }
 
-  // ✅ Check for updates once window is ready (catch errors silently)
+  // ✅ Check for updates once window is ready (in production)
   win.webContents.once("did-finish-load", () => {
-    log.info("Checking for updates...");
-    autoUpdater.checkForUpdatesAndNotify().catch((err) => {
-      log.error("Failed to check for updates:", err.message);
-    });
+    if (!isDev) {
+      log.info("Checking for updates...");
+      autoUpdater.checkForUpdates().catch((err) => {
+        log.error("Failed to check for updates:", err.message);
+      });
+    } else {
+      log.info("Development mode: skipping autoUpdater check.");
+    }
   });
 }
-// 🟢 Create progress window
+
+// 🟢 Create progress window for update download
 function createProgressWindow() {
+  if (progressWindow && !progressWindow.isDestroyed()) {
+    progressWindow.focus();
+    return;
+  }
+
   progressWindow = new BrowserWindow({
-    width: 400,
-    height: 180,
+    width: 440,
+    height: 220,
     title: "Downloading Update",
     resizable: false,
     minimizable: false,
     maximizable: false,
     alwaysOnTop: true,
+    center: true,
     frame: false,
     modal: true,
-    parent: mainWindow,
+    parent: mainWindow && !mainWindow.isDestroyed() ? mainWindow : null,
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
+      nodeIntegration: false,
+      contextIsolation: true,
     },
   });
 
-  progressWindow.loadURL(`data:text/html,
-    <html>
-      <body style="font-family: system-ui; background: #fff; text-align: center; padding: 40px; margin: 0;">
-        <img src='https://www.seyyidmadaniullal.com/images/logo.png' width='60' height='60' style='margin-bottom: 10px;'/>
-        <h3 id="title" style="margin:0; color:#2e7d32;">E-Jamaat Update</h3>
-        <p style="margin-top:5px;">Downloading update...</p>
-        <div style='width:100%; height:10px; background:#eee; border-radius:5px; overflow:hidden; margin-top:10px;'>
-          <div id='bar' style='width:0%; height:10px; background:#2e7d32; border-radius:5px; transition:width 0.3s ease;'></div>
-        </div>
-        <p id="percent" style="font-weight:bold; margin-top:10px;">0%</p>
-      </body>
-    </html>`);
+  const htmlContent = `<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        background: #ffffff;
+        color: #1f2937;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        padding: 24px;
+        border: 1px solid #e5e7eb;
+        user-select: none;
+      }
+      h3 { font-size: 16px; font-weight: 600; color: #166534; margin-bottom: 6px; }
+      p { font-size: 13px; color: #6b7280; margin-bottom: 16px; }
+      .progress-container {
+        width: 100%;
+        height: 10px;
+        background: #e5e7eb;
+        border-radius: 9999px;
+        overflow: hidden;
+      }
+      .progress-bar {
+        width: 0%;
+        height: 100%;
+        background: linear-gradient(90deg, #16a34a, #22c55e);
+        border-radius: 9999px;
+        transition: width 0.2s ease;
+      }
+      .status-row {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        margin-top: 10px;
+        font-size: 12px;
+        color: #4b5563;
+        font-weight: 500;
+      }
+    </style>
+  </head>
+  <body>
+    <h3>Downloading E-Jamaat Update</h3>
+    <p>Please wait while the update is being downloaded...</p>
+    <div class="progress-container">
+      <div id="bar" class="progress-bar"></div>
+    </div>
+    <div class="status-row">
+      <span id="details">0 MB / 0 MB</span>
+      <span id="percent">0%</span>
+    </div>
+  </body>
+</html>`;
+
+  progressWindow.loadURL("data:text/html;charset=utf-8," + encodeURIComponent(htmlContent));
 }
 
 // 🔄 Auto Updater Events
 autoUpdater.on("update-available", (info) => {
   log.info("Update available:", info.version);
 
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send("update_available", info);
+  }
+
   dialog
-    .showMessageBox({
+    .showMessageBox(mainWindow && !mainWindow.isDestroyed() ? mainWindow : null, {
       type: "info",
       title: "Update Available",
-      message: `A new version (${info.version}) is available.\nDo you want to download it now?`,
-      buttons: ["Yes", "Later"],
+      message: `A new version (v${info.version}) is available.`,
+      detail: "Would you like to download and install this update now?",
+      buttons: ["Download & Update", "Later"],
+      defaultId: 0,
+      cancelId: 1,
     })
     .then((result) => {
       if (result.response === 0) {
         createProgressWindow();
-        autoUpdater.downloadUpdate();
+        autoUpdater.downloadUpdate().catch((err) => {
+          log.error("Failed to start update download:", err);
+          if (progressWindow && !progressWindow.isDestroyed()) {
+            progressWindow.close();
+          }
+        });
       }
     });
 });
 
+autoUpdater.on("update-not-available", (info) => {
+  log.info("App is up to date:", info ? info.version : "latest");
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send("update_not_available", info);
+  }
+});
+
 autoUpdater.on("download-progress", (progressObj) => {
   const percent = Math.round(progressObj.percent);
-  log.info(`Download progress: ${percent}%`);
+  const transferredMB = (progressObj.transferred / 1024 / 1024).toFixed(1);
+  const totalMB = (progressObj.total / 1024 / 1024).toFixed(1);
+  log.info(`Download progress: ${percent}% (${transferredMB} MB / ${totalMB} MB)`);
+
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send("download_progress", progressObj);
+  }
 
   if (progressWindow && !progressWindow.isDestroyed()) {
-    progressWindow.webContents.executeJavaScript(`
-      document.getElementById('bar').style.width = '${percent}%';
-      document.getElementById('percent').innerText = '${percent}%';
-    `);
+    progressWindow.webContents
+      .executeJavaScript(`
+        const bar = document.getElementById('bar');
+        const percent = document.getElementById('percent');
+        const details = document.getElementById('details');
+        if (bar) bar.style.width = '${percent}%';
+        if (percent) percent.innerText = '${percent}%';
+        if (details) details.innerText = '${transferredMB} MB / ${totalMB} MB';
+      `)
+      .catch(() => {});
   }
 });
 
@@ -246,15 +270,24 @@ autoUpdater.on("update-downloaded", (info) => {
     progressWindow.close();
   }
 
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send("update_downloaded", info);
+  }
+
   dialog
-    .showMessageBox({
+    .showMessageBox(mainWindow && !mainWindow.isDestroyed() ? mainWindow : null, {
       type: "question",
-      buttons: ["Restart", "Later"],
+      title: "Update Downloaded",
+      message: `Version v${info.version} has been downloaded successfully.`,
+      detail: "The application needs to restart to apply the update. Restart now?",
+      buttons: ["Restart & Install", "Later"],
       defaultId: 0,
-      message: "Update downloaded successfully. Restart now to install?",
+      cancelId: 1,
     })
     .then((returnValue) => {
-      if (returnValue.response === 0) autoUpdater.quitAndInstall();
+      if (returnValue.response === 0) {
+        autoUpdater.quitAndInstall(false, true);
+      }
     });
 });
 
@@ -265,6 +298,21 @@ autoUpdater.on("error", (err) => {
   }
 });
 
+// IPC handlers for manual updates from renderer
+ipcMain.on("check_for_updates", () => {
+  if (!isDev) {
+    autoUpdater.checkForUpdates().catch((err) => {
+      log.error("Manual update check failed:", err.message);
+    });
+  } else {
+    log.info("Manual update check ignored in dev mode.");
+  }
+});
+
+ipcMain.on("quit_and_install", () => {
+  autoUpdater.quitAndInstall(false, true);
+});
+
 // 🟢 App Ready
 app.whenReady().then(() => {
   createWindow();
@@ -272,13 +320,6 @@ app.whenReady().then(() => {
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
-
-  // ✅ Check for updates automatically (catch errors silently)
-  setTimeout(() => {
-    autoUpdater.checkForUpdatesAndNotify().catch((err) => {
-      log.error("Failed to check for updates:", err.message);
-    });
-  }, 3000);
 });
 
 app.on("window-all-closed", () => {
