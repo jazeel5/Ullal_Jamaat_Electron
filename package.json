@@ -1,6 +1,6 @@
 {
   "name": "e-jamaat",
-  "version": "1.0.4.1",
+  "version": "1.0.5",
   "main": "electron.js",
   "scripts": {
     "predev": "npx kill-port 5173 5174 || true",
