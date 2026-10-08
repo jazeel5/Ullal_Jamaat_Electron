@@ -21,6 +21,7 @@ import Dashboard from "./Screen/Dashboard/Dashboard";
 import UpdateRequestsReview from "./Screen/UpdateRequests/UpdateRequestsReview";
 import Announcement from "./Screen/Announcement/Announcement";
 import MarriageAidReview from "./Screen/MarriageAid/MarriageAidReview";
+import { AppUpdatesProvider } from "./components/AppUpdates";
 
 // Create a separate component that uses useLocation
 function AppContent() {
@@ -146,7 +147,9 @@ function AppContent() {
 function App() {
   return (
     <HashRouter>
-      <AppContent />
+      <AppUpdatesProvider>
+        <AppContent />
+      </AppUpdatesProvider>
     </HashRouter>
   );
 }

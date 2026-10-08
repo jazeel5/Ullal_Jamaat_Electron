@@ -48,6 +48,7 @@ import { cn } from "@/lib/utils";
 import UserSettingsDrawer from "./UserSettingsDrawer";
 import { useTheme } from "../ThemeProvider";
 import Logo from "../Logo/Logo";
+import { AppUpdateButton } from "@/components/AppUpdates";
 
 // Storage Stats Dialog Component
 function StorageStatsDialog({ open, onOpenChange, storageStats, isLoading }) {
@@ -460,7 +461,7 @@ export default function NavBar() {
       <nav className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
         <div className="flex h-16 items-center justify-between px-4 w-full">
           {/* Left Section - Logo & Navigation */}
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-6 min-w-0">
             {/* Logo */}
             <Logo />
             {/* Navigation Buttons */}
@@ -490,7 +491,8 @@ export default function NavBar() {
           </div>
 
           {/* Right Section - Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
+            <AppUpdateButton />
             {/* Sync Status/Button */}
             {isOnline && (
               <>

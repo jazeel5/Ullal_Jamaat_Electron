@@ -1,12 +1,14 @@
 {
   "name": "e-jamaat",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "main": "electron.js",
   "scripts": {
     "predev": "npx kill-port 5173 5174 || true",
     "dev": "cross-env NODE_ENV=development concurrently \"cd react_ejamaat && npm run dev\" \"wait-on http://localhost:5173 && electron .\"",
-    "build": "cd react_ejamaat && npm run build && cd .. && npx electron-builder --win --x64",
-    "publish": "cd react_ejamaat && npm run build && cd .. && npx electron-builder --win --x64 --publish always"
+    "build": "cd react_ejamaat && npm run build && cd .. && npx electron-builder --win --x64 --publish never && npm run verify-release",
+    "publish": "cd react_ejamaat && npm run build && cd .. && npx electron-builder --win --x64 --publish always",
+    "test": "node --test tests/appUpdater.test.js tests/updateRelease.test.js",
+    "verify-release": "node scripts/verify-update-release.js"
   },
   "repository": {
     "type": "git",
@@ -41,7 +43,6 @@
           ]
         }
       ],
-      "artifactName": "E-Jamaat-Setup-${version}.${ext}",
       "icon": "public/logo.ico"
     },
     "nsis": {
@@ -50,7 +51,8 @@
       "allowToChangeInstallationDirectory": false,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "E-Jamaat"
+      "shortcutName": "E-Jamaat",
+      "artifactName": "E-Jamaat-Setup-${version}.${ext}"
     },
     "mac": {
       "icon": "public/logo.icns",
@@ -71,7 +73,10 @@
         "repo": "Ullal_Jamaat_Electron",
         "releaseType": "release"
       }
-    ]
+    ],
+    "portable": {
+      "artifactName": "E-Jamaat-Portable-${version}.${ext}"
+    }
   },
   "keywords": [],
   "author": "",
@@ -97,6 +102,7 @@
     "electron": "^36.9.5",
     "electron-builder": "^25.1.8",
     "electron-reloader": "^1.2.3",
-    "wait-on": "^8.0.3"
+    "wait-on": "^8.0.3",
+    "js-yaml": "^4.1.0"
   }
 }

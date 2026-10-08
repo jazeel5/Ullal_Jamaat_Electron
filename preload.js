@@ -12,10 +12,15 @@ contextBridge.exposeInMainWorld("ipcRenderer", {
 });
 
 contextBridge.exposeInMainWorld("electronAPI", {
-  checkForUpdates: () => ipcRenderer.send("check_for_updates"),
-  onUpdateAvailable: (callback) => ipcRenderer.on("update_available", callback),
-  onUpdateNotAvailable: (callback) => ipcRenderer.on("update_not_available", callback),
-  onDownloadProgress: (callback) => ipcRenderer.on("download_progress", callback),
-  onUpdateDownloaded: (callback) => ipcRenderer.on("update_downloaded", callback),
-  quitAndInstall: () => ipcRenderer.send("quit_and_install"),
+  getUpdateState: () => ipcRenderer.invoke("updater:get-state"),
+  openUpdates: () => ipcRenderer.invoke("updater:open"),
+  checkForUpdates: () => ipcRenderer.invoke("updater:check"),
+  downloadUpdate: () => ipcRenderer.invoke("updater:download"),
+  quitAndInstall: () => ipcRenderer.invoke("updater:install"),
+  closeUpdates: () => ipcRenderer.invoke("updater:close"),
+  onUpdateState: (callback) => {
+    const listener = (_event, state) => callback(state);
+    ipcRenderer.on("updater:state", listener);
+    return () => ipcRenderer.removeListener("updater:state", listener);
+  },
 });

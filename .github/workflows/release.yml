@@ -35,6 +35,9 @@ jobs:
         working-directory: react_ejamaat
         run: npm install --legacy-peer-deps
 
+      - name: Test update handling
+        run: npm test
+
       - name: Build React application
         working-directory: react_ejamaat
         run: npm run build
@@ -42,12 +45,17 @@ jobs:
       - name: Build Electron App
         run: npx electron-builder --win --x64 --publish never
 
+      - name: Verify update installer metadata
+        run: npm run verify-release
+
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ env.VERSION }}
+          fail_on_unmatched_files: true
           files: |
             dist/E-Jamaat-Setup-*.exe
+            dist/E-Jamaat-Portable-*.exe
             dist/latest.yml
             dist/*.blockmap
         env:
