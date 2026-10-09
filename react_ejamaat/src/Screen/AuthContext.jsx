@@ -68,9 +68,18 @@ export const AuthProvider = ({ children }) => {
         if (adminDetail) {
           localStorage.setItem("admin", JSON.stringify(adminDetail));
           setAdmin(adminDetail);
+        } else {
+          const stored = localStorage.getItem("admin");
+          if (stored) {
+            try { setAdmin(JSON.parse(stored)); } catch (e) {}
+          }
         }
       } catch (error) {
         console.error("Error invoking get-data:", error);
+        const stored = localStorage.getItem("admin");
+        if (stored) {
+          try { setAdmin(JSON.parse(stored)); } catch (e) {}
+        }
       }
     } else {
       const stored = localStorage.getItem("admin");

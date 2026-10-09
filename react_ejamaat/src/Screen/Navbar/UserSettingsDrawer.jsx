@@ -106,10 +106,15 @@ function UserSettingsDrawer({ open, onClose, admin }) {
     setProfileError("");
     setProfileSuccess("");
 
+    const targetAdminId =
+      typeof admin?._id === "string"
+        ? admin._id
+        : admin?._id?.toString?.() || admin?.id || "";
+
     try {
       if (ipcRenderer) {
         const response = await ipcRenderer.invoke("updateAdmin", {
-          id: admin?._id,
+          id: targetAdminId,
           data: {
             name: profileData.name,
             email: profileData.email,
@@ -131,10 +136,12 @@ function UserSettingsDrawer({ open, onClose, admin }) {
         } else {
           setProfileError(response?.message || "Failed to update profile");
         }
+      } else {
+        setProfileError("Desktop communication service unavailable");
       }
     } catch (err) {
       console.error("Save profile error:", err);
-      setProfileError("Error updating profile. Please try again.");
+      setProfileError(err?.message || "Error updating profile. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -171,10 +178,15 @@ function UserSettingsDrawer({ open, onClose, admin }) {
     setPasswordError("");
     setPasswordSuccess("");
 
+    const targetAdminId =
+      typeof admin?._id === "string"
+        ? admin._id
+        : admin?._id?.toString?.() || admin?.id || "";
+
     try {
       if (ipcRenderer) {
         const response = await ipcRenderer.invoke("updateAdmin", {
-          id: admin?._id,
+          id: targetAdminId,
           data: {
             password: passwordData.newPassword,
           },
@@ -182,6 +194,10 @@ function UserSettingsDrawer({ open, onClose, admin }) {
 
         if (response?.success) {
           setPasswordSuccess(response.message || "Password updated successfully!");
+          if (response.admin && setAdmin) {
+            setAdmin(response.admin);
+            localStorage.setItem("admin", JSON.stringify(response.admin));
+          }
           setPasswordData({
             currentPassword: "",
             newPassword: "",
@@ -190,10 +206,12 @@ function UserSettingsDrawer({ open, onClose, admin }) {
         } else {
           setPasswordError(response?.message || "Failed to update password");
         }
+      } else {
+        setPasswordError("Desktop communication service unavailable");
       }
     } catch (err) {
       console.error("Password update error:", err);
-      setPasswordError("Error updating password. Please try again.");
+      setPasswordError(err?.message || "Error updating password. Please try again.");
     } finally {
       setSaving(false);
     }

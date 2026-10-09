@@ -240,6 +240,12 @@ function MemberDetailModal({
                     </p>
                   </div>
                   <div>
+                    <p className="text-xs text-muted-foreground">Door Number</p>
+                    <p className="text-sm font-medium">
+                      {familyData?.doorNumber || "-"}
+                    </p>
+                  </div>
+                  <div>
                     <p className="text-xs text-muted-foreground">House Owner</p>
                     <p className="text-sm font-medium">
                       {familyData?.houseOwnerName || "-"}
@@ -706,8 +712,8 @@ export default function Population() {
 
         if (typeof aValue === "string" && typeof bValue === "string") {
           return sortConfig.direction === "asc"
-            ? aValue.toLowerCase().localeCompare(bValue.toLowerCase())
-            : bValue.toLowerCase().localeCompare(aValue.toLowerCase());
+            ? aValue.localeCompare(bValue, undefined, { numeric: true, sensitivity: "base" })
+            : bValue.localeCompare(aValue, undefined, { numeric: true, sensitivity: "base" });
         }
 
         return 0;
@@ -1044,7 +1050,7 @@ export default function Population() {
       <div className="flex-1 overflow-auto p-4">
         <Card className="overflow-hidden">
           <div className="overflow-x-auto w-full">
-            <Table className="min-w-[900px]">
+            <Table className="min-w-[1000px]">
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[60px]">#</TableHead>
@@ -1088,6 +1094,12 @@ export default function Population() {
                 </TableHead>
                 <TableHead
                   className="cursor-pointer select-none hover:text-foreground"
+                  onClick={() => handleSort("familyData.doorNumber")}
+                >
+                  Door No
+                </TableHead>
+                <TableHead
+                  className="cursor-pointer select-none hover:text-foreground"
                   onClick={() => handleSort("familyData.houseAddress")}
                 >
                   Address
@@ -1125,6 +1137,9 @@ export default function Population() {
                     <TableCell>
                       {item?.familyData?.mohallaDetail?.[0]?.mohallaName || "-"}
                     </TableCell>
+                    <TableCell className="font-medium">
+                      {item?.familyData?.doorNumber || "-"}
+                    </TableCell>
                     <TableCell className="max-w-xs truncate">
                       {item?.familyData?.houseAddress || "-"}
                     </TableCell>
@@ -1142,7 +1157,7 @@ export default function Population() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={9} className="h-32 text-center">
+                  <TableCell colSpan={10} className="h-32 text-center">
                     <div className="flex flex-col items-center gap-2">
                       <Search className="h-8 w-8 text-muted-foreground/50" />
                       <p className="text-muted-foreground">No members found.</p>

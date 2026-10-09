@@ -80,8 +80,8 @@ export default function Family() {
 
         if (typeof aValue === "string" && typeof bValue === "string") {
           return sortConfig.direction === "asc"
-            ? aValue.toLowerCase().localeCompare(bValue.toLowerCase())
-            : bValue.toLowerCase().localeCompare(aValue.toLowerCase());
+            ? aValue.localeCompare(bValue, undefined, { numeric: true, sensitivity: "base" })
+            : bValue.localeCompare(aValue, undefined, { numeric: true, sensitivity: "base" });
         }
 
         return 0;
@@ -201,7 +201,7 @@ export default function Family() {
       <div className="flex-1 overflow-auto p-4">
         <Card className="overflow-hidden">
           <div className="overflow-x-auto w-full">
-            <Table className="min-w-[800px]">
+            <Table className="min-w-[900px]">
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[60px]">#</TableHead>
@@ -210,6 +210,12 @@ export default function Family() {
                     onClick={() => handleSort("familyData.form_no")}
                   >
                     Form No
+                  </TableHead>
+                  <TableHead
+                    className="cursor-pointer select-none hover:text-foreground"
+                    onClick={() => handleSort("familyData.doorNumber")}
+                  >
+                    Door No
                   </TableHead>
                   <TableHead
                     className="cursor-pointer select-none hover:text-foreground"
@@ -255,6 +261,9 @@ export default function Family() {
                         {family?.familyData?.form_no || "-"}
                       </TableCell>
                       <TableCell className="font-medium">
+                        {family?.familyData?.doorNumber || "-"}
+                      </TableCell>
+                      <TableCell className="font-medium">
                         {family?.familyData?.houseOwnerName || "-"}
                       </TableCell>
                       <TableCell>
@@ -295,7 +304,7 @@ export default function Family() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={8} className="h-32 text-center">
+                    <TableCell colSpan={9} className="h-32 text-center">
                       <div className="flex flex-col items-center gap-2">
                         <Search className="h-8 w-8 text-muted-foreground/50" />
                         <p className="text-muted-foreground">

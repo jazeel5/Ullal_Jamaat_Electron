@@ -222,8 +222,9 @@ ipcMain.handle("getAdmin", async (event, token) => {
 
 ipcMain.handle("updateAdmin", async (event, { id, data }) => {
   try {
+    const adminId = id || store.get("cached_admin")?._id;
     if (mongoose.connection.readyState === 1) {
-      const result = await updateAdmin(id, data);
+      const result = await updateAdmin(adminId, data);
       if (result.success && result.admin) {
         store.set("cached_admin", result.admin);
       }
@@ -237,18 +238,25 @@ ipcMain.handle("updateAdmin", async (event, { id, data }) => {
         email: data.email || currentAdmin.email,
         phone: data.phone || data.contactNumber || currentAdmin.phone,
       };
+      if (data.password) {
+        const bcrypt = require("bcryptjs");
+        const hashedPassword = await bcrypt.hash(data.password, 10);
+        updatedAdmin.password = hashedPassword;
+      }
       store.set("cached_admin", updatedAdmin);
 
       const pendingPath = path.join(app.getPath("userData"), "pending-admin-update.json");
       fs.writeFileSync(
         pendingPath,
-        JSON.stringify({ id, data, updatedAt: new Date() }, null, 2),
+        JSON.stringify({ id: adminId, data, updatedAt: new Date() }, null, 2),
         "utf-8"
       );
 
       return {
         success: true,
-        message: "Profile updated locally (offline). Will sync when online.",
+        message: data.password
+          ? "Password updated locally (offline). Will sync when online."
+          : "Profile updated locally (offline). Will sync when online.",
         admin: updatedAdmin,
         offline: true,
       };

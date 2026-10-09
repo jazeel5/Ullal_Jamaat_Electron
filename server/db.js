@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const MONGO_URI =
   process.env.MONGO_URI ||
-  "mongodb+srv://jazeel5:Admin@cluster0.oud0fml.mongodb.net/local_ejamaat_2";
+  "mongodb+srv://jazeel5:Admin@cluster0.oud0fml.mongodb.net/ejamaat";
 
 let isConnecting = false;
 
